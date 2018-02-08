@@ -7,10 +7,25 @@ END
 	CREATE DATABASE [online seminar]
 GO
 
+USE [online seminar]
+GO
+
+
+
+
 --------create table statements----------
 
 
-USE [online seminar]
+
+--created a new table "pricing"
+CREATE TABLE pricing
+(
+	planID     INT         not null IDENTITY(1,1),
+	plantype    VARCHAR(20) not null,
+	planprice   MONEY       not null,
+	PRIMARY KEY (planID)
+
+)
 
 
 CREATE TABLE Subscriptions
@@ -25,8 +40,7 @@ CREATE TABLE Subscriptions
 
 
 
-
-
+	
 
 
 CREATE TABLE Members
@@ -39,10 +53,12 @@ CREATE TABLE Members
 	currentflag		 BIT           null,
 	birthdate		 DATETIME      not null,
 	subscriptionID   INT		   not null,
+	planID           INT           not null,
 	PRIMARY   KEY    (memberID),
-	CONSTRAINT fk_subcriptionID  FOREIGN KEY (subscriptionID) REFERENCES Subscriptions (subscriptionID)
+	CONSTRAINT fk_subcriptionID  FOREIGN KEY (subscriptionID) REFERENCES Subscriptions (subscriptionID),
+	CONSTRAINT fk_planID    FOREIGN KEY  (planID) REFERENCES pricing (planID)
 )
-
+	
 
 
 
@@ -90,6 +106,21 @@ CREATE TABLE Contactinfo
 	PRIMARY KEY   (contactID),
 	CONSTRAINT fk_contact_memberID  FOREIGN KEY (memberID) REFERENCES Members (memberID)
 )
+
+
+
+--created a new table "passwords"
+CREATE TABLE Passwords
+(
+	passwordID		    INT		     not null IDENTITY(1,1),
+	memberID			INT		     not null,
+	[password]          VARCHAR(80)  not null,
+	passwordchangedate  DATETIME     not null,
+	PRIMARY KEY         (passwordID),
+	CONSTRAINT fk_password_member FOREIGN KEY (memberID) REFERENCES Members (memberID)
+)
+
+
 
 
 
@@ -157,7 +188,23 @@ CREATE TABLE paymentinfo
 
 
 
+
+
+
 --------Inserts-------------
+
+---insert into pricing
+INSERT INTO pricing
+			( plantype, planprice)
+VALUES      (' 2 year', '189.00'),
+			('1 year', '99.00'),
+			('Quarterly', '27.00'),
+			('Monthly', '9.99'),
+			('Free',    '0.00')
+
+
+
+
  ----subscription insert
 
  INSERT INTO Subscriptions
@@ -227,78 +274,78 @@ VALUES      ('monthly', '$9.99', '0', '10-6-2017')
 --insert into members
 
 INSERT INTO members
-			(memberID, firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID)
-VALUES      (1,'otis', 'Brooke', 'Fallon', 'Male', '6-29-1971', '1', 1)
+			(memberID, firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID, planID)
+VALUES      (1,'otis', 'Brooke', 'Fallon', 'Male', '6-29-1971', '1', 1, '4')
 
 ------------------------------------------------------------------------------------------
 INSERT INTO members
-			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID)
-VALUES      (2,'katee', 'Virgie', 'Gepp', 'Female', '4-3-1972', '1', 2)
+			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID, planID)
+VALUES      (2,'katee', 'Virgie', 'Gepp', 'Female', '4-3-1972', '1', 2, '4')
 
 ---------------------------------------------------------------------------------------------
 INSERT INTO members
-			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID)
-VALUES      (3,'Lilla', 'Charmion', 'Eattok', 'female', '12-13-1975', '1', 3)
+			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID, planID)
+VALUES      (3,'Lilla', 'Charmion', 'Eattok', 'female', '12-13-1975', '1', 3, '3')
 
 ------------------------------------------------------------------------------------------
 INSERT INTO members
-			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID)
-VALUES      (4,'Ddene', 'Shelba', 'Clapperton', 'female', '2-19-1997', '1', 4)
+			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID, planID)
+VALUES      (4,'Ddene', 'Shelba', 'Clapperton', 'female', '2-19-1997', '1', 4, '3')
 ----------------------------------------------------------------------------------------------
 
 INSERT INTO members
-			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID)
-VALUES      (5,'Audrye', 'Agathe', 'Dawks', 'female', '2-7-1989', '1', 5)
+			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID, planID)
+VALUES      (5,'Audrye', 'Agathe', 'Dawks', 'female', '2-7-1989', '1', 5, '4')
 
 --------------------------------------------------------------------------------------------
 INSERT INTO members
-			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID)
-VALUES      (6,'Fredi', 'Melisandra', 'Burgyn', 'female', '5-31-1956', '1', 6)
+			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID, planID)
+VALUES      (6,'Fredi', 'Melisandra', 'Burgyn', 'female', '5-31-1956', '1', 6, '2')
 
 -----------------------------------------------------------------------------------------
 INSERT INTO members
-			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID)
-VALUES      (7,'Dimitri', 'Francisco', 'Bellino', 'Male', '10-12-1976', '1', 7)
+			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID, planID)
+VALUES      (7,'Dimitri', 'Francisco', 'Bellino', 'Male', '10-12-1976', '1', 7, '4')
 
 -------------------------------------------------------------------------------------------
 INSERT INTO members
-			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID)
-VALUES      (8,'Enrico', 'Cleve', 'Seeney', 'Male', '2-29-1988', '1', 8)
+			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID, planID)
+VALUES      (8,'Enrico', 'Cleve', 'Seeney', 'Male', '2-29-1988', '1', 8, '2')
 
 ----------------------------------------------------------------------------------------------
 INSERT INTO members
-			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID)
-VALUES      (9,'Marylinda', 'Jennie', 'Osiaghail', 'female', '2-6-1965', '0', 9)
+			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID, planID)
+VALUES      (9,'Marylinda', 'Jennie', 'Osiaghail', 'female', '2-6-1965', '0', 9, '4')
 
 ----------------------------------------------------------------------------------------------
 INSERT INTO members
-			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID)
-VALUES      (10,'Luce', 'Codi', 'Kovalksi', 'Male', '3-31-1978', '1', 10)
+			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID, planID)
+VALUES      (10,'Luce', 'Codi', 'Kovalksi', 'Male', '3-31-1978', '1', 10, '4')
 
 -----------------------------------------------------------------------------------------------
 INSERT INTO members
-			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID)
-VALUES      (11,'Claiborn', 'Shadow', 'Baldinotti', 'Male', '12-26-1991', '1', 11)
+			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID, planID)
+VALUES      (11,'Claiborn', 'Shadow', 'Baldinotti', 'Male', '12-26-1991', '1', 11, '4')
 
 -----------------------------------------------------------------------------------------------
 INSERT INTO members
-			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID)
-VALUES      (12,'Isabelle', 'Betty', 'Glossop', 'female', '2-17-1965', '1', 12)
+			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID, planID)
+VALUES      (12,'Isabelle', 'Betty', 'Glossop', 'female', '2-17-1965', '1', 12, '3')
 
 -----------------------------------------------------------------------------------------------
 INSERT INTO members
-			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID)
-VALUES      (13,'Davina', 'Lira', 'Wither', 'female', '12-16-1957', '1', 13)
+			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID, planID)
+VALUES      (13,'Davina', 'Lira', 'Wither', 'female', '12-16-1957', '1', 13, '2')
 
 ------------------------------------------------------------------------------------------------
 INSERT INTO members
-			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID)
-VALUES      (14,'Panchito', 'Hashim', 'DeGregorio', 'Male', '10-14-1964', '1', 14)
+			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID, planID)
+VALUES      (14,'Panchito', 'Hashim', 'DeGregorio', 'Male', '10-14-1964', '1', 14, '4')
 
 -------------------------------------------------------------------------------------------------
 INSERT INTO members
-			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID)
-VALUES      (15,'Rowen', 'Arvin', 'Birdfield', 'Male', '1-9-1983', '0', 15)
+			(memberID,firstname, middlename, lastname, gender, birthdate, currentflag, subscriptionID, planID)
+VALUES      (15,'Rowen', 'Arvin', 'Birdfield', 'Male', '1-9-1983', '0', 15, '4')
 
 
 
@@ -378,7 +425,6 @@ VALUES      (14, 'writing', 'singing',NULL)
 INSERT INTO memberinterests
 			( memberiD, interest1, interest2, interest3)
 VALUES      (15, 'reading', 'pottery', NULL)
-
 
 
 
@@ -524,6 +570,29 @@ VALUES      (14,     'hdegregoriod2a8.net', '484-717-6750')
 INSERT INTO Contactinfo
 			(memberID, email, phonenumber)
 VALUES      (15,     'abirdfielde@over-blog.com', '915-299-3451')
+
+
+
+
+
+----insert into password----
+INSERT INTO Passwords
+			(memberID, [password], passwordchangedate)
+VALUES      (1,     'RTES',		'2/15/2018'),
+			(2,     'REKSK',    '2/23/2018'),
+			(3,     'B6184',    '2/28/2018'),
+			(4,     'AB1D957',  '3/3/2018'),
+			(5,     '9BE6BC1',  '3/12/2018'),
+			(6,     '4F01B7',   '3/15/2018'),
+			(7,     'B7CB98',   '3/28/2018'),
+			(8,     '204E60',   '4/1/2018'),
+			(9,     'CA90C2',   '4/8/2018'),
+			(10,    'D8946C511D8','4/15/2018'),
+			(11,     'A37FF2CF','4/20/2018'),
+			(12,     'FASSSRT', '5/15/2018'),
+			(13,     'RTSR8',   '5/30/2018'),
+			(14,     'FIOPP5',  '2/15/2018'),
+			(15,     'VBESR5',  '2/15/2018')
 
 
 
@@ -1533,21 +1602,7 @@ VALUES		(14,     '1/27/2018', '$9.99', '1')
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 --insert into payment info
-
-
 
 INSERT INTO paymentinfo
 			(transID, memberID, cardtype, cardnumber, expdate)
@@ -1629,6 +1684,7 @@ GO
 
 
 --------complete contact view
+GO
 CREATE VIEW viewcontactlist
 AS
 	SELECT m.firstname, m.lastname, a.addressline1, a.addressline2, a.city, a.[state], a.zipcode,
@@ -1640,8 +1696,11 @@ AS
 	ON     a.memberID = ci.memberID
 GO
 
-----If someone would frequently need to look up or see everyones complete address and contact
-----info
+--select * from viewcontactlist
+
+--If someone would frequently need to look up or see everyones complete address and contact
+----info, if the entire address and contact info was always having to be retrieved, Its just 
+--a select statements with some joins put into a "virtual table"
 
 
 
@@ -1654,21 +1713,33 @@ AS
 	FROM   members m
 	JOIN   Contactinfo ci
 	ON     ci.memberID = m.memberID
-GO	
+
+	--select * from viewemail
+
+----If someone wanted to see the complete contact info for each member and see those 
+----records, if you have to retreive a lot with this data, a view is a shortcut. I
+----inner joined on contact info to get all members and their contact information.
 
 
 
-
-
--------------view on current month birthdays
-CREATE VIEW viewbirthdate
-AS
-	SELECT m.firstname, m.lastname, m.birthdate
-	FROM   Members m
-	WHERE  m.birthdate LIKE '%Feb%'
+-------------stored procedure on current month birthdays
 GO
-
-
+CREATE FUNCTION fn_birthday
+(
+	@birthdaymonth  DATETIME
+)
+	RETURNS TABLE
+AS
+	RETURN
+	SELECT  firstname AS [firstname], birthdate AS [month of birth]
+	FROM    Members
+	WHERE   month(birthdate) = @birthdaymonth
+GO	
+	--select * FROM [fn_birthday] (2)
+	--We wanted to see employees who were celebrating their birthday this month, I created 
+	--a function and passed through a paramater of @birthday month. Instead of a scalar value,
+	--it is a table valued function so I will be returning a table. I did a select statement 
+	--showing birthdate = my paramater, showing the birthdays for members as specified.
 
 
 
@@ -1677,8 +1748,37 @@ GO
 CREATE VIEW viewexpcreditcards
 AS
 	SELECT expdate, memberID FROM paymentinfo 
-	WHERE  expdate > getdate()
+	WHERE  expdate < getdate()
 GO
+
+--select expdate from viewexpcreditcards
+
+----A view that Shows all the expired credit cards, I used a getdate() function
+----to show that the expdate must be greater then the getdate or the card is expired
+----already, looks like there are no expired cards.
+
+
+
+
+
+-------monthly income for a given time frame--------
+CREATE PROCEDURE proc_monthlyincome
+
+	@startdate DATETIME,
+	@enddate    DATETIME
+
+AS
+	SELECT transID, transactiondate
+	FROM   transactions
+	WHERE  transactiondate BETWEEN @startdate AND @enddate
+GO
+
+	--EXEC proc_monthlyincome '2/15/16', '4/15/16'
+
+	--I used a procedure to see the given income per month over specified dates, As a similar 
+	--method as the first one, I used my paramaters of start and end date. I specified in my 
+	--WHERE clause that the transaction date is between whatever dates that i specify. Returns 
+	--a result for whatever Dates I put in.
 
 
 
@@ -1694,13 +1794,18 @@ GO
 )
 AS
 
-	SELECT COUNT(m.memberID) AS 'Members'
+	SELECT m.memberID AS 'Members'
 	FROM   Members m
 	JOIN   Subscriptions s 
 	ON     m.subscriptionID = s.subscriptionID
 	WHERE  s.joineddate BETWEEN @startdate AND @enddate
 GO
---	EXEC proc_newmember '4/25/16', '3/13/17'
+--	EXEC proc_newmember '8/25/16', '2/13/17'
+
+-- It wanted any new members who joined per month between any given dates, I put in my
+ --paramaters of @startdate and @enddate, and I selected members and joined on subscriptions
+ --to get the joineddate and I specified the joineddate between my two paramatetrs. 
+
 
 
 
@@ -1714,14 +1819,37 @@ GO
 		@eventenddate   DATETIME
 	)
 	AS
-
-		SELECT m.memberID, em.attendance
+	
+		SELECT m.memberID, e.eventID, em.attendance
 		FROM   Members m
 		JOIN   Eventmembers em
 		ON     em.memberID = m.memberID
-		WHERE  em.attendance BETWEEN @eventstartdate AND @eventenddate
+		JOIN   [events] e
+		ON     e.eventID = em.eventID
+		WHERE  e.eventdate BETWEEN @eventstartdate AND @eventenddate
+		
+
+--A stored procedure is a group of SQL statements that you can run over and over. 
+--I used a stored procedure to see the attendance for a certain event over a period of
+--time. I selected the memberID, attendance and I joined on the two tables, EVENTMEMBERS
+--and EVENTS to get the eventdate column, then in my WHERE clause, I specified where my
+--eventdate is between my two paramaters that I put in. Then when I EXEC, I specified two 
+--literal dates to go between.
 
 
-		--EXEC proc_attendance '2/22/2017', '3/5/2017'
+
+
+--creating a view on pricing
+GO
+CREATE VIEW viewpasswords
+AS
+	SELECT [passwordID], HASHBYTES('MD5', 'password') AS [passsword] FROM Passwords
+
+
+	--select * from viewpasswords
+
+	--HASHBYTES converts the text value passwords to a string so the password is more secure
+	--that way
+
 
 
