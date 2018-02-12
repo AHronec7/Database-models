@@ -1,13 +1,13 @@
 USE master 
- IF (SELECT COUNT(*) FROM sys.sysdatabases WHERE NAME = 'Online seminar') > 0
+ IF (SELECT COUNT(*) FROM sys.sysdatabases WHERE NAME = 'OnlineSeminar') > 0
  BEGIN
-	DROP DATABASE [Online seminar]
+	DROP DATABASE [OnlineSeminar]
 END
 
-	CREATE DATABASE [online seminar]
+	CREATE DATABASE [OnlineSeminar]
 GO
 
-USE [online seminar]
+USE [onlineSeminar]
 GO
 
 
@@ -1681,8 +1681,6 @@ GO
 
 
 
-
-
 --------complete contact view
 GO
 CREATE VIEW viewcontactlist
@@ -1699,8 +1697,11 @@ GO
 --select * from viewcontactlist
 
 --If someone would frequently need to look up or see everyones complete address and contact
-----info, if the entire address and contact info was always having to be retrieved, Its just 
+--info, if the entire address and contact info was always having to be retrieved, Its just 
 --a select statements with some joins put into a "virtual table"
+-- I inner joined on Members and address to get member names with their addresses.
+--next, I inner joined on contactinfo to return their emails and phonenumbers as well.
+
 
 
 
@@ -1736,10 +1737,12 @@ AS
 	WHERE   month(birthdate) = @birthdaymonth
 GO	
 	--select * FROM [fn_birthday] (2)
-	--We wanted to see employees who were celebrating their birthday this month, I created 
-	--a function and passed through a paramater of @birthday month. Instead of a scalar value,
-	--it is a table valued function so I will be returning a table. I did a select statement 
-	--showing birthdate = my paramater, showing the birthdays for members as specified.
+	--select * FROM [fn_birthday] (10)
+	--It wanted to see a list of members who were celebrating their birthday during
+	--a month, I created a function that instead of a scalar value function, its a
+	--table value function. I passed a paramater of @birthday month in, then I returned
+	--a table that selected the names. Then I set the birthdate equal to my paramater.
+
 
 
 
@@ -1748,7 +1751,7 @@ GO
 CREATE VIEW viewexpcreditcards
 AS
 	SELECT expdate, memberID FROM paymentinfo 
-	WHERE  expdate < getdate()
+	WHERE  expdate >= getdate()
 GO
 
 --select expdate from viewexpcreditcards
@@ -1759,25 +1762,24 @@ GO
 
 
 
-
-
 -------monthly income for a given time frame--------
 CREATE PROCEDURE proc_monthlyincome
 
-	@startdate DATETIME,
+	@startdate  DATETIME,
 	@enddate    DATETIME
 
 AS
-	SELECT transID, transactiondate
+
+	SELECT SUM(charges)
 	FROM   transactions
 	WHERE  transactiondate BETWEEN @startdate AND @enddate
-GO
+	
 
-	--EXEC proc_monthlyincome '2/15/16', '4/15/16'
 
+	--EXEC proc_monthlyincome '2017-01-01', '2018-01-01'
 	--I used a procedure to see the given income per month over specified dates, As a similar 
 	--method as the first one, I used my paramaters of start and end date. I specified in my 
-	--WHERE clause that the transaction date is between whatever dates that i specify. Returns 
+	--WHERE clause that the transaction date is between whatever dates that I specify. Returns 
 	--a result for whatever Dates I put in.
 
 
@@ -1785,27 +1787,35 @@ GO
 
 
 
-
 ------ new member sign up over a time frame
+GO
  CREATE PROCEDURE proc_newmember
  (
 	 @startdate  DATETIME,
 	 @enddate    DATETIME 
 )
 AS
-
-	SELECT m.memberID AS 'Members'
+BEGIN
+	SELECT COUNT(m.memberID) AS ' NewMembers' , CONCAT(DATENAME(MONTH,(MAX(s.joineddate))), ' ',DATEPART(YEAR, s.joineddate))
+												 AS 'Month joined'
 	FROM   Members m
 	JOIN   Subscriptions s 
 	ON     m.subscriptionID = s.subscriptionID
 	WHERE  s.joineddate BETWEEN @startdate AND @enddate
-GO
---	EXEC proc_newmember '8/25/16', '2/13/17'
+	GROUP BY  DATEPART(MONTH,(s.joineddate)), DATEPART(YEAR,(s.joineddate)) 
+END
+--EXEC proc_newmember '1/1/17', '1/1/18'
+--EXEC proc_newmember '4/25/16', '3/13/17'
+--EXEC proc_newmember '3/13/17', '1/1/18'
 
--- It wanted any new members who joined per month between any given dates, I put in my
- --paramaters of @startdate and @enddate, and I selected members and joined on subscriptions
- --to get the joineddate and I specified the joineddate between my two paramatetrs. 
-
+-- It wanted any new members who joined per month between any given dates, I created
+--a procedure that counted the members for each month between any two given dates
+--I specify. I used paramaters of startdate and enddate. I selected Then I joined on the 
+--subscriptions table to get the joineddate and I specified the joineddate
+--being between my two paramaters in my WHERE clause. Then I did the DATENAME function,
+--which will return a name representation of DATEPART, then I did the MONTH
+--I then specified DATEPART and YEAR to return the year as well. I added a CONCAT as well
+--so the month and the year are returned in the same column.
 
 
 
@@ -1813,6 +1823,7 @@ GO
 
 
 ------attendance over a time period
+GO 
 	CREATE PROCEDURE proc_attendance
 	(
 		@eventstartdate DATETIME,
@@ -1820,25 +1831,21 @@ GO
 	)
 	AS
 	
-		SELECT m.memberID, e.eventID, em.attendance
-		FROM   Members m
-		JOIN   Eventmembers em
-		ON     em.memberID = m.memberID
-		JOIN   [events] e
-		ON     e.eventID = em.eventID
+		SELECT count(em.memberID), e.eventtitle, e.eventdate
+		FROM   Eventmembers em
+		JOIN   events e
+		ON     em.eventID = e.eventID
 		WHERE  e.eventdate BETWEEN @eventstartdate AND @eventenddate
+		GROUP BY em.memberID, e.eventtitle, e.eventdate 
+		
+		--EXEC proc_attendance '2017-02-12', '2017-04-16'
+
+		--The procedure counts the memberID for each event and It gets the attendacne for each
+		--member at each event. I innerjoined on eventmembers and events.
 		
 
---A stored procedure is a group of SQL statements that you can run over and over. 
---I used a stored procedure to see the attendance for a certain event over a period of
---time. I selected the memberID, attendance and I joined on the two tables, EVENTMEMBERS
---and EVENTS to get the eventdate column, then in my WHERE clause, I specified where my
---eventdate is between my two paramaters that I put in. Then when I EXEC, I specified two 
---literal dates to go between.
 
-
-
-
+		select * from events
 --creating a view on pricing
 GO
 CREATE VIEW viewpasswords
@@ -1851,5 +1858,84 @@ AS
 	--HASHBYTES converts the text value passwords to a string so the password is more secure
 	--that way
 
+
+
+
+
+
+
+-----secure storage of passwords
+GO
+CREATE PROCEDURE proc_securepassword
+(
+	@passwordID     INT ,  
+	@memberID       INT ,  
+	@password      VARCHAR(50), 
+	@passwordchangedate DATE , 
+	@responsemessage  NVARCHAR(100) OUTPUT 
+)
+AS
+BEGIN
+
+	SET NOCOUNT ON
+
+BEGIN TRY
+
+	INSERT INTO passwords 
+				(passwordID, memberID, password, passwordchangedate)
+VALUES			(@passwordID, @memberID, HASHBYTES('MD5', @password), @passwordchangedate)
+
+	SET @responsemessage = 'success'
+
+
+END TRY
+BEGIN CATCH
+	SET @responsemessage = ERROR_MESSAGE()
+END CATCH 
+END
+
+
+--This creates a secure storage of passwords and I took my variables and inserted them into the
+--passwords table as values
+GO
+DECLARE @responsemessage VARCHAR(250)
+
+EXEC proc_securepassword
+	 @passwordID = '1',
+	 @memberID   = '2',
+	 @password   = 'REKSK',
+	 @passwordchangedate ='2018-02-23',
+	 @responsemessage = @responsemessage OUTPUT
+
+
+	 --This makes the password secure so it makes it difficult to encrypt and to cypher the 
+	 --password
+
+
+
+
+
+
+
+
+
+
+
+
+---view to determine the last time a password was changed
+GO
+CREATE VIEW passview
+AS
+	SELECT CONCAT(m.firstname, ',', m.lastname) AS 'members', p.passwordchangedate
+	FROM         Passwords p
+	JOIN         Members m
+	ON           p.memberID = m.memberID
+GO
+
+
+--select * from passview
+
+--This is a view that shows the member and the last time that they changed their password,
+--I joined on members from passwords on the memberID
 
 
