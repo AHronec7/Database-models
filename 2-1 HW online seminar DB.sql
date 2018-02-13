@@ -114,6 +114,7 @@ CREATE TABLE Passwords
 (
 	passwordID		    INT		     not null IDENTITY(1,1),
 	memberID			INT		     not null,
+	userlogin           VARCHAR(50)  not null,
 	[password]          VARCHAR(80)  not null,
 	passwordchangedate  DATETIME     not null,
 	PRIMARY KEY         (passwordID),
@@ -575,25 +576,32 @@ VALUES      (15,     'abirdfielde@over-blog.com', '915-299-3451')
 
 
 
+
+
 ----insert into password----
 INSERT INTO Passwords
-			(memberID, [password], passwordchangedate)
-VALUES      (1,     'RTES',		'2/15/2018'),
-			(2,     'REKSK',    '2/23/2018'),
-			(3,     'B6184',    '2/28/2018'),
-			(4,     'AB1D957',  '3/3/2018'),
-			(5,     '9BE6BC1',  '3/12/2018'),
-			(6,     '4F01B7',   '3/15/2018'),
-			(7,     'B7CB98',   '3/28/2018'),
-			(8,     '204E60',   '4/1/2018'),
-			(9,     'CA90C2',   '4/8/2018'),
-			(10,    'D8946C511D8','4/15/2018'),
-			(11,     'A37FF2CF','4/20/2018'),
-			(12,     'FASSSRT', '5/15/2018'),
-			(13,     'RTSR8',   '5/30/2018'),
-			(14,     'FIOPP5',  '2/15/2018'),
-			(15,     'VBESR5',  '2/15/2018')
+			(memberID, userlogin,  [password], passwordchangedate)
+VALUES      (1,  'bfallon@artisteer.com',       HASHBYTES('MD5',   'RTES'),		'2/15/2018'),
+			(2,  'vgepp1@nih.gov',              HASHBYTES('MD5','RESSS'),    '2/23/2018'),
+			(3,  'ceatttok2@google.com',        HASHBYTES('MD5','THESRT'),    '2/28/2018'),
+			(4,  ' sclapperton3@mapquest.com',  HASHBYTES('MD5','RDSDF'),  '3/3/2018'),
+			(5,  'adawks4@mlb.com',             HASHBYTES('MD5','REKSK'),  '3/12/2018'),
+			(6,  'mburgyn5@cbslocal.com',      HASHBYTES('MD5','RETETK'),   '3/15/2018'),
+			(7,  'fbellino6@devhub.com',       HASHBYTES('MD5','RTTK'),   '3/28/2018'),
+			(8,  'cseeney7@macromedia.com',    HASHBYTES('MD5','JEKSK'),   '4/1/2018'),
+			(9,  'josiaghail8@tuttocitta.it',  HASHBYTES('MD5','TSESK'),   '4/8/2018'),
+			(10, 'ckovalski9@facebook.com',    HASHBYTES('MD5','REKSK'),'4/15/2018'),
+			(11, 'sbaldinottia@discuz.net',    HASHBYTES('MD5','RGSGSK'),'4/20/2018'),
+			(12, 'bglossopb@msu.edu',         HASHBYTES('MD5','REFSEFGK'), '5/15/2018'),
+			(13, 'lwitherc@smugmug.com',     HASHBYTES('MD5','GRDGRSK'),   '5/30/2018'),
+			(14, 'hdegregoriod2a8.net',      HASHBYTES('MD5','REKDDD'),  '2/15/2018'),
+			(15, 'abirdfielde@over-blog.com', HASHBYTES('MD5','FESSAH'),  '2/15/2018')
 
+			
+-- The HASHBYTES allow the password to be encripted so it is harder to crack. Protects the password
+
+
+			
 
 
 
@@ -1889,13 +1897,12 @@ AS
 
 
 
-
 -----secure storage of passwords
 GO
 CREATE PROCEDURE proc_securepassword
 (
-	@passwordID     INT ,  
-	@memberID       INT ,  
+ 
+	@userlogin     VARCHAR(50), 
 	@password      VARCHAR(50), 
 	@passwordchangedate DATE , 
 	@responsemessage  NVARCHAR(100) OUTPUT 
@@ -1908,8 +1915,8 @@ BEGIN
 BEGIN TRY
 
 	INSERT INTO passwords 
-				(passwordID, memberID, password, passwordchangedate)
-VALUES			(@passwordID, @memberID, HASHBYTES('MD5', @password), @passwordchangedate)
+				(  [password], passwordchangedate)
+VALUES			(  HASHBYTES('MD5', @password), @passwordchangedate)
 
 	SET @responsemessage = 'success'
 
@@ -1929,8 +1936,7 @@ GO
 DECLARE @responsemessage VARCHAR(250)
 
 EXEC proc_securepassword
-	 @passwordID = '2',
-	 @memberID   = '2',
+	 @userlogin  = 'bfallon@artisteer.com',
 	 @password   = 'REKSK',
 	 @passwordchangedate ='2018-02-23',
 	 @responsemessage = @responsemessage OUTPUT
@@ -1941,12 +1947,14 @@ GO
 
 
 
+
+
 DECLARE @responsemessage VARCHAR(250)
  ----Correct Login
 
  EXEC proc_securepassword
-	  @passwordID = '2',
-	  @memberID   = '2',
+	  
+	  @userlogin  = 'bfallon@artisteer.com',
 	  @password   = 'REKSK',
 	  @passwordchangedate = '2018-02-23',
 	  @responsemessage = @responsemessage OUTPUT
@@ -1955,9 +1963,6 @@ GO
 
 
 	
-
-
-
 
 
 
@@ -1978,8 +1983,6 @@ GO
 
 --This is a view that shows the member and the last time that they changed their password,
 --I joined on members from passwords on the memberID
-
-
 
 
 
