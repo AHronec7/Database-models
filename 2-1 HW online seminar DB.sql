@@ -1762,6 +1762,12 @@ GO
 
 
 
+
+
+
+
+
+
 -------monthly income for a given time frame--------
 CREATE PROCEDURE proc_monthlyincome
 
@@ -1772,15 +1778,19 @@ AS
 
 	SELECT SUM(charges)
 	FROM   transactions
-	WHERE  transactiondate BETWEEN @startdate AND @enddate
+	WHERE  transactiondate BETWEEN @startdate AND @enddate AND approved <> 0  
 	
-
+	
 
 	--EXEC proc_monthlyincome '2017-01-01', '2018-01-01'
 	--I used a procedure to see the given income per month over specified dates, As a similar 
 	--method as the first one, I used my paramaters of start and end date. I specified in my 
 	--WHERE clause that the transaction date is between whatever dates that I specify. Returns 
 	--a result for whatever Dates I put in.
+
+
+
+
 
 
 
@@ -1822,6 +1832,11 @@ END
 
 
 
+
+
+
+
+
 ------attendance over a time period
 GO 
 	CREATE PROCEDURE proc_attendance
@@ -1831,32 +1846,43 @@ GO
 	)
 	AS
 	
-		SELECT count(em.memberID), e.eventtitle, e.eventdate
+		SELECT count(em.memberID), MAX(e.eventtitle), e.eventdate
 		FROM   Eventmembers em
 		JOIN   events e
 		ON     em.eventID = e.eventID
-		WHERE  e.eventdate BETWEEN @eventstartdate AND @eventenddate
-		GROUP BY em.memberID, e.eventtitle, e.eventdate 
+		WHERE  e.eventdate BETWEEN @eventstartdate AND @eventenddate AND em.attendance <> 0
+		GROUP BY DATEPART(MONTH, e.eventdate), e.eventdate
 		
-		--EXEC proc_attendance '2017-02-12', '2017-04-16'
+		--EXEC proc_attendance '2017-01-01', '2018-01-01'
+		-- EXEC proc_attendance '4/25/16', '3/13/17'
 
 		--The procedure counts the memberID for each event and It gets the attendacne for each
-		--member at each event. I innerjoined on eventmembers and events.
+		--member at each event. I innerjoined on eventmembers and events. I specified that the eventdate
+		--be between my paramaters of what I specify, then I specified where the attendance is not 0
 		
 
 
-		select * from events
+
+
+
+
+
+
+
 --creating a view on pricing
 GO
 CREATE VIEW viewpasswords
 AS
-	SELECT [passwordID], HASHBYTES('MD5', 'password') AS [passsword] FROM Passwords
+	SELECT [passwordID], HASHBYTES('MD5', [password]) AS [passsword] FROM Passwords
 
 
 	--select * from viewpasswords
 
 	--HASHBYTES converts the text value passwords to a string so the password is more secure
-	--that way
+	--that way, every password is converted to a hash
+
+
+
 
 
 
@@ -1895,25 +1921,40 @@ END CATCH
 END
 
 
+
+
 --This creates a secure storage of passwords and I took my variables and inserted them into the
 --passwords table as values
 GO
 DECLARE @responsemessage VARCHAR(250)
 
 EXEC proc_securepassword
-	 @passwordID = '1',
+	 @passwordID = '2',
 	 @memberID   = '2',
 	 @password   = 'REKSK',
 	 @passwordchangedate ='2018-02-23',
 	 @responsemessage = @responsemessage OUTPUT
-
+GO
 
 	 --This makes the password secure so it makes it difficult to encrypt and to cypher the 
 	 --password
 
 
 
+DECLARE @responsemessage VARCHAR(250)
+ ----Correct Login
 
+ EXEC proc_securepassword
+	  @passwordID = '2',
+	  @memberID   = '2',
+	  @password   = 'REKSK',
+	  @passwordchangedate = '2018-02-23',
+	  @responsemessage = @responsemessage OUTPUT
+GO
+
+
+
+	
 
 
 
@@ -1937,5 +1978,11 @@ GO
 
 --This is a view that shows the member and the last time that they changed their password,
 --I joined on members from passwords on the memberID
+
+
+
+
+
+
 
 
