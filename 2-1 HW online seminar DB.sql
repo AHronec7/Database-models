@@ -1863,6 +1863,7 @@ GO
 		
 		--EXEC proc_attendance '2017-01-01', '2018-01-01'
 		-- EXEC proc_attendance '4/25/16', '3/13/17'
+		--EXEC  proc_attendance '2/2/17' , '2/22/17'
 
 		--The procedure counts the memberID for each event and It gets the attendacne for each
 		--member at each event. I innerjoined on eventmembers and events. I specified that the eventdate
@@ -1915,8 +1916,8 @@ BEGIN
 BEGIN TRY
 
 	INSERT INTO passwords 
-				(  [password], passwordchangedate)
-VALUES			(  HASHBYTES('MD5', @password), @passwordchangedate)
+				(userlogin,[password], passwordchangedate)
+VALUES			(@userlogin, HASHBYTES('MD5', @password), @passwordchangedate)
 
 	SET @responsemessage = 'success'
 
@@ -1930,8 +1931,7 @@ END
 
 
 
---This creates a secure storage of passwords and I took my variables and inserted them into the
---passwords table as values
+--This creates a secure storage of passwords 
 GO
 DECLARE @responsemessage VARCHAR(250)
 
@@ -1949,20 +1949,6 @@ GO
 
 
 
-DECLARE @responsemessage VARCHAR(250)
- ----Correct Login
-
- EXEC proc_securepassword
-	  
-	  @userlogin  = 'bfallon@artisteer.com',
-	  @password   = 'REKSK',
-	  @passwordchangedate = '2018-02-23',
-	  @responsemessage = @responsemessage OUTPUT
-GO
-
-
-
-	
 
 
 
