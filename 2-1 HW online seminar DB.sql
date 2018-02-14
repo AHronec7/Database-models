@@ -1975,3 +1975,102 @@ GO
 
 
 
+
+
+
+
+--View that shows the list of all events held to date with name, description, and organizer name and number of people
+--who attended, sort by eventdate DESC
+
+CREATE VIEW [dbo].[viewevent] WITH SCHEMABINDING  --allows for data to not be changed or dropped if it is referencing the view
+AS
+	SELECT TOP 15   COUNT(memberID) AS [members],  MAX(e.eventtitle) AS [Title], MAX(e.eventspeaker) AS [organizer],
+					 MAX(e.eventdate) AS [date of event], em.attendance
+	FROM   dbo.Eventmembers em
+	INNER JOIN   dbo.Events e
+	ON     e.eventID = em.eventID 
+	WHERE  em.attendance <> 0
+	GROUP BY e.eventdate, attendance
+	ORDER BY MAX(e.eventdate) DESC
+GO
+
+
+--select * from viewevent
+	
+
+--ALTER TABLE eventmembers DROP COLUMN attendance 
+
+---- The object 'viewevent' is dependant on column 'attendance'
+
+
+--DROP TABLE dbo.Eventmembers
+
+---- Cannot DROP TABLE 'dbo.Eventmembers' because it is being referenced by object 'viewevent'
+
+
+
+
+
+
+
+--Create a view that will view all information on current members with paid accounts, as well as their address information
+--updates will be performed through this view 
+
+
+CREATE VIEW  fullmemberview
+AS
+	SELECT  s.subscriptionID, CONCAT(m.firstname, ',', m.lastname) AS [Member], s.subscriptiontype, s.subscriptionprice, s.joineddate, a.addressline1,
+				  p.cardtype, p.cardnumber, p.expdate, a.addressline2, a.city, a.state, a.zipcode, s.stillactive
+	FROM          members m
+INNER JOIN        Subscriptions s
+ON                m.subscriptionID = s.subscriptionID
+INNER JOIN        address a
+ON                m.memberID = a.memberID
+INNER JOIN        paymentinfo p
+ON                p.memberID = m.memberID
+WHERE             stillactive <> 0 AND subscriptiontype <> 'free'
+WITH CHECK OPTION 
+GO
+ 
+--- The WITH CHECK OPTION enforces any rows that are modified against the view
+
+--select * from fullmemberview
+
+
+
+--UPDATE fullmemberview
+--SET    stillactive = 0
+--WHERE  subscriptionID = 6
+
+----- attempt to update failed because the target conflicted with the CHECK OPTION
+
+
+
+--UPDATE fullmemberview
+--SET    subscriptiontype = 'free'
+--WHERE  subscriptionID = 5
+
+
+----- attempt to update failed because the target conflicted with the CHECK OPTION
+
+
+
+
+
+
+
+
+
+
+----- The seminar will now suppport a series of events, individual events should have the option of being marked as part of parent
+----- series
+
+
+
+
+
+
+
+
+
+
